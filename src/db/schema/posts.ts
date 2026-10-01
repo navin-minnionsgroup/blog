@@ -6,13 +6,15 @@ import {
   boolean,
   timestamp,
 } from "drizzle-orm/pg-core";
+import { tenants } from "./tenants";
+import { users } from "./users";
 
 export const posts = pgTable("posts", {
   id: uuid("id").defaultRandom().primaryKey(),
 
-  tenantId: uuid("tenant_id").notNull(),
+  tenantId: uuid("tenant_id").notNull().references(() => tenants.id),
 
-  authorId: uuid("author_id").notNull(),
+  authorId: uuid("author_id").notNull().references(() => users.id),
 
   title: varchar("title", {
     length: 200,
