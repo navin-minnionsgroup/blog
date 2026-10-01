@@ -1,4 +1,7 @@
+import { relations } from "drizzle-orm";
 import { pgTable, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
+import { memberships } from "./memberships";
+import { posts } from "./posts";
 
 
 export const users = pgTable('users', {
@@ -12,3 +15,8 @@ export const users = pgTable('users', {
 
   createAt: timestamp('created_at').defaultNow().notNull(),
 })
+
+export const userRelations = relations(users, ({ many }) => ({
+  memberships: many(memberships),
+  post: many(posts)
+}))

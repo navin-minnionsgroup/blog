@@ -8,6 +8,7 @@ import {
 } from "drizzle-orm/pg-core";
 import { tenants } from "./tenants";
 import { users } from "./users";
+import { relations } from "drizzle-orm";
 
 export const posts = pgTable("posts", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -38,3 +39,15 @@ export const posts = pgTable("posts", {
     .defaultNow()
     .notNull(),
 });
+
+export const postRelations = relations(posts, ({ one }) => ({
+  tenants: one(tenants, {
+    fields: [posts.tenantId],
+    references: [tenants.id]
+  }),
+
+  author: one(users, {
+    fields: [posts.authorId],
+    references: [users.id]
+  })
+}))
