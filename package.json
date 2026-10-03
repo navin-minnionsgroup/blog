@@ -3,6 +3,7 @@
     "dev": "bunx tsx src/server.ts"
   },
   "dependencies": {
+    "@imagekit/nodejs": "^7.12.1",
     "bcrypt": "^6.0.0",
     "dotenv": "^18.0.5",
     "drizzle-orm": "^0.45.3",
