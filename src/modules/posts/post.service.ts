@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { db } from "../../db";
 import { posts } from "../../db/schema";
 
@@ -32,4 +32,21 @@ export async function getPosts(tenantId: string) {
     .select()
     .from(posts)
     .where(eq(posts.tenantId, tenantId))
+}
+export async function getPostById(
+  postId: string,
+  tenantId: string
+) {
+  const [post] = await db
+    .select()
+    .from(posts)
+    .where(
+      and(
+        eq(posts.id, postId),
+        eq(posts.tenantId, tenantId)
+      )
+    )
+    .limit(1);
+
+  return post;
 }

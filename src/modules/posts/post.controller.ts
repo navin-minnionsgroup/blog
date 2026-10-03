@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 
 import { createPostSchema } from "./post.schema";
-import { createPost, getPosts } from "./post.service";
+import { createPost, getPostById, getPosts } from "./post.service";
 
 export async function createPostController(
   req: Request,
@@ -49,5 +49,31 @@ export async function getPostsController(
 
   return res.json({
     posts,
+  });
+}
+
+export async function getPostByIdController(
+  req: Request,
+  res: Response
+) {
+  if (!req.tenantId) {
+    return res.status(401).json({
+      message: "Tenant context required",
+    });
+  }
+
+  const post = await getPostById(
+    req.params.id,
+    req.tenantId
+  );
+
+  if (!post) {
+    return res.status(404).json({
+      message: "Post not found",
+    });
+  }
+
+  return res.json({
+    post,
   });
 }

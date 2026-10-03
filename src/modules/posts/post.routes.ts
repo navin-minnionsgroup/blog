@@ -14,4 +14,6 @@ route.get('/', authMiddleware,
   tenantMiddleware,
   getPostsController
 )
+route.get('/:id', authMiddleware, tenantMiddleware, getPostsController)
+
 export default route
