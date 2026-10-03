@@ -24,3 +24,5 @@ export const createPostSchema = z.object({
 
   published: z.boolean().default(false),
 });
+
+export const updatePostSchema = createPostSchema.partial();

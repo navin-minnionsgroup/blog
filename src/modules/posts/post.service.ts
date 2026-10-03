@@ -50,3 +50,47 @@ export async function getPostById(
 
   return post;
 }
+
+export async function updatePost(
+  postId: string,
+  tenantId: string,
+  data: {
+    title?: string;
+    slug?: string;
+    content?: string;
+    published?: boolean;
+  }
+) {
+  const [post] = await db
+    .update(posts)
+    .set({
+      ...data,
+      updatedAt: new Date(),
+    })
+    .where(
+      and(
+        eq(posts.id, postId),
+        eq(posts.tenantId, tenantId)
+      )
+    )
+    .returning();
+
+  return post;
+}
+
+export async function deletePost(
+  postId: string,
+  tenantId: string
+) {
+  const [post] = await db
+    .delete(posts)
+    .where(
+      and(
+        eq(posts.id, postId),
+        eq(posts.tenantId, tenantId)
+      )
+    )
+    .returning();
+
+  return post;
+}

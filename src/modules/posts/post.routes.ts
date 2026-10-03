@@ -1,19 +1,31 @@
 import { Router } from "express";
 import { authMiddleware } from "../../middleware/auth";
 import { tenantMiddleware } from "../../middleware/tenant";
-import { createPostController, getPostsController } from "./post.controller";
+import { createPostController, deletePostController, getPostsController, updatePostController } from "./post.controller";
 
-const route = Router()
+const router = Router()
 
-route.post('/', authMiddleware,
+router.post('/', authMiddleware,
   tenantMiddleware,
   createPostController
 )
 
-route.get('/', authMiddleware,
+router.get('/', authMiddleware,
   tenantMiddleware,
   getPostsController
 )
-route.get('/:id', authMiddleware, tenantMiddleware, getPostsController)
+router.get('/:id', authMiddleware, tenantMiddleware, getPostsController)
 
-export default route
+router.patch(
+  "/:id",
+  authMiddleware,
+  tenantMiddleware,
+  updatePostController
+);
+router.delete(
+  "/:id",
+  authMiddleware,
+  tenantMiddleware,
+  deletePostController
+);
+export default router

@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 
-import { createPostSchema } from "./post.schema";
-import { createPost, getPostById, getPosts } from "./post.service";
+import { createPostSchema, updatePostSchema } from "./post.schema";
+import { createPost, deletePost, getPostById, getPosts, updatePost } from "./post.service";
 
 export async function createPostController(
   req: Request,
@@ -75,5 +75,68 @@ export async function getPostByIdController(
 
   return res.json({
     post,
+  });
+}
+
+export async function updatePostController(
+  req: Request,
+  res: Response
+) {
+  const result = updatePostSchema.safeParse(req.body);
+
+  if (!result.success) {
+    return res.status(400).json({
+      message: "Validation failed",
+      errors: result.error.flatten(),
+    });
+  }
+
+  if (!req.tenantId) {
+    return res.status(401).json({
+      message: "Tenant context required",
+    });
+  }
+
+  const post = await updatePost(
+    req.params.id,
+    req.tenantId,
+    result.data
+  );
+
+  if (!post) {
+    return res.status(404).json({
+      message: "Post not found",
+    });
+  }
+
+  return res.json({
+    message: "Post updated successfully",
+    post,
+  });
+}
+
+export async function deletePostController(
+  req: Request,
+  res: Response
+) {
+  if (!req.tenantId) {
+    return res.status(401).json({
+      message: "Tenant context required",
+    });
+  }
+
+  const post = await deletePost(
+    req.params.id,
+    req.tenantId
+  );
+
+  if (!post) {
+    return res.status(404).json({
+      message: "Post not found",
+    });
+  }
+
+  return res.json({
+    message: "Post deleted successfully",
   });
 }
