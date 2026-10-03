@@ -1,7 +1,9 @@
 import bcrypt from "bcrypt";
+import jwt from 'jsonwebtoken'
 
 import { db } from "../../db";
 import { users, tenants, memberships } from "../../db/schema";
+import { eq } from "drizzle-orm";
 
 type RegisterInput = {
   name: string;
@@ -50,4 +52,28 @@ export async function registerUser(input: RegisterInput) {
       membership,
     };
   });
+}
+
+export async function loginUser(email: string, password: string) {
+  const [user] = await db.select().from(users).where(eq(users.email, email)).limit(1)
+
+  if (!user) {
+    throw new Error("Invalid email or password.")
+  }
+  const passwordValid = await bcrypt.compare(password, user.passwordHash)
+
+  if (!passwordValid) {
+    throw new Error("Invalid email or password. ")
+  }
+
+  const token = jwt.sign(
+    {
+      userId: user.id,
+    },
+    process.env.JWT_SECRET!,
+    {
+      expiresIn: '7d'
+    }
+  )
+  return { user, token };
 }

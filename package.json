@@ -1,4 +1,7 @@
 {
+  "scripts": {
+    "dev": "bunx tsx src/server.ts"
+  },
   "dependencies": {
     "bcrypt": "^6.0.0",
     "dotenv": "^18.0.5",

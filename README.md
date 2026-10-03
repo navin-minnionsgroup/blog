@@ -87,30 +87,99 @@ drizzle.config.ts        # schema: ./src/db/schema/index.ts
 
 > Note: `package.json` currently has no `scripts`. Add e.g. `"dev": "tsx src/server.ts"` to simplify startup.
 
-## API (brief)
+## API Routes + Test Request / Response
 
-### Register (user + tenant + membership)
-`POST /api/auth/register`
+Base URL: `http://localhost:3000`
+
+### 1. Register — `POST /api/auth/register`
+
+Creates a `user` + `tenant` + `membership(role: "owner")` in one call.
+
+**Test request:**
+```bash
+curl -X POST http://localhost:3000/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Navin",
+    "email": "navin@example.com",
+    "password": "password123",
+    "tenantName": "Navins Blog",
+    "tenantSlug": "navins-blog"
+  }'
+```
+
+**Success `201`:**
 ```json
 {
-  "name": "Navin",
-  "email": "navin@example.com",
-  "password": "password123",
-  "tenantName": "Navin's Blog",
-  "tenantSlug": "navins-blog"
+  "message": "User registered successfully",
+  "user": {
+    "id": "a1b2c3d4-uuid",
+    "name": "Navin",
+    "email": "navin@example.com"
+  },
+  "tenant": {
+    "id": "t1-uuid",
+    "name": "Navins Blog",
+    "slug": "navins-blog",
+    "createdAt": "2026-10-03T00:00:00.000Z"
+  },
+  "membership": {
+    "id": "m1-uuid",
+    "userId": "a1b2c3d4-uuid",
+    "tenantId": "t1-uuid",
+    "role": "owner",
+    "createAt": "2026-10-03T00:00:00.000Z"
+  }
 }
 ```
-Response `201`: `{ user: {id, name, email}, tenant, membership }`
 
-### Create Tenant
-`POST /api/tenants`
+**Validation fail `400`:**
 ```json
 {
-  "name": "Acme Blog",
-  "slug": "acme-blog"
+  "message": "Validation failed",
+  "errors": { "_errors": [], "issues": "...zod error..." }
 }
 ```
-Response `201`: `{ message, tenant }`
+Common causes: bad email, password < 8 chars, `tenantSlug` not matching `/^[a-z0-9-]+$/`.
+
+### 2. Create Tenant — `POST /api/tenants`
+
+Creates a standalone tenant (no user/membership).
+
+**Test request:**
+```bash
+curl -X POST http://localhost:3000/api/tenants \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Acme Blog",
+    "slug": "acme-blog"
+  }'
+```
+
+**Success `201`:**
+```json
+{
+  "message": "Tenant created successfully",
+  "tenant": {
+    "id": "t2-uuid",
+    "name": "Acme Blog",
+    "slug": "acme-blog",
+    "createdAt": "2026-10-03T00:00:00.000Z"
+  }
+}
+```
+
+**Validation fail `400`:**
+```json
+{
+  "message": "Validation failed",
+  "errors": { "slug": "Slug can only contain lowercase letters, numbers and hyphens" }
+}
+```
+
+### 3. Posts — not yet available
+
+`src/modules/posts/post.routes.ts`, `post.controller.ts`, `post.service.ts` are empty and not mounted in `src/app.ts`. No test request yet.
 
 ## Status / Next Steps
 

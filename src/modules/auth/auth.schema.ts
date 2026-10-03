@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { email, z } from "zod";
 
 export const registerSchema = z.object({
   name: z
@@ -34,3 +34,11 @@ export const registerSchema = z.object({
       "Tenant slug can only contain lowercase letters, numbers and hyphens"
     ),
 });
+
+export const loginSchema = z.object({
+  email: z.string()
+    .trim()
+    .email("Invalid email address. "),
+
+  password: z.string().min(1, "password is required.")
+})

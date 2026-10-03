@@ -1,12 +1,14 @@
 import express from 'express'
-import tenantRoute from './modules/tenants/tenant.routes'
-import authRoute from './modules/auth/auth.routes'
+import tenantRoutes from './modules/tenants/tenant.routes'
+import authRoutes from './modules/auth/auth.routes'
+import authTestRoutes from './modules/auth/auth.test.routes'
 
 const app = express()
 
 app.use(express.json())
 
-app.use("/api/tenants", tenantRoute)
-app.use("/api/auth", authRoute)
+app.use("/api/tenants", tenantRoutes)
+app.use("/api/auth", authRoutes)
+app.use("/api/test", authTestRoutes)
 
 export default app
