@@ -12,41 +12,42 @@ type RegisterInput = {
 };
 
 export async function registerUser(input: RegisterInput) {
-  // 1. Hash the password
   const passwordHash = await bcrypt.hash(input.password, 12);
 
-  // 2. Create the user
-  const [user] = await db
-    .insert(users)
-    .values({
-      name: input.name,
-      email: input.email,
-      passwordHash,
-    })
-    .returning();
+  return await db.transaction(async (tx) => {
+    // 1. Create user
+    const [user] = await tx
+      .insert(users)
+      .values({
+        name: input.name,
+        email: input.email,
+        passwordHash,
+      })
+      .returning();
 
-  // 3. Create the tenant
-  const [tenant] = await db
-    .insert(tenants)
-    .values({
-      name: input.tenantName,
-      slug: input.tenantSlug,
-    })
-    .returning();
+    // 2. Create tenant
+    const [tenant] = await tx
+      .insert(tenants)
+      .values({
+        name: input.tenantName,
+        slug: input.tenantSlug,
+      })
+      .returning();
 
-  // 4. Connect user to tenant as owner
-  const [membership] = await db
-    .insert(memberships)
-    .values({
-      userId: user.id,
-      tenantId: tenant.id,
-      role: "owner",
-    })
-    .returning();
+    // 3. Create membership
+    const [membership] = await tx
+      .insert(memberships)
+      .values({
+        userId: user.id,
+        tenantId: tenant.id,
+        role: "owner",
+      })
+      .returning();
 
-  return {
-    user,
-    tenant,
-    membership,
-  };
+    return {
+      user,
+      tenant,
+      membership,
+    };
+  });
 }
